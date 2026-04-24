@@ -1,6 +1,8 @@
 import type { Kpi } from "@/lib/kpis"
 
 function Sparkline({ data }: { data: number[] }) {
+  if (data.length < 2) return null
+
   const min = Math.min(...data)
   const max = Math.max(...data)
   const range = max - min || 1
@@ -37,6 +39,8 @@ function Sparkline({ data }: { data: number[] }) {
 }
 
 function TrendBadge({ data }: { data: number[] }) {
+  if (data.length < 2) return null
+
   const first = data[0] || 1
   const last = data[data.length - 1]
   const isUp = last >= first
@@ -54,19 +58,26 @@ function TrendBadge({ data }: { data: number[] }) {
 }
 
 export function KpiCard({ kpi }: { kpi: Kpi }) {
+  const hasTrend = kpi.trend.length >= 2
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col gap-2">
       <p className="text-sm font-medium text-gray-500">{kpi.label}</p>
       <p className="text-3xl font-bold text-gray-900 tabular-nums">
         {kpi.value}
       </p>
-      <div className="flex items-center justify-between mt-1">
-        <TrendBadge data={kpi.trend} />
-        <span className="text-xs text-gray-400">7-day</span>
-      </div>
-      <div className="mt-1">
-        <Sparkline data={kpi.trend} />
-      </div>
+      {kpi.meta && (
+        <p className="text-xs text-gray-400">{kpi.meta}</p>
+      )}
+      {hasTrend && (
+        <>
+          <div className="flex items-center justify-between mt-1">
+            <TrendBadge data={kpi.trend} />
+            <span className="text-xs text-gray-400">7-day</span>
+          </div>
+          <Sparkline data={kpi.trend} />
+        </>
+      )}
     </div>
   )
 }
